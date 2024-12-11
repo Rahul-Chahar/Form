@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        form {
+            width: 400px;
+            margin: auto;
+            box-shadow: 0px 0px 10px 2px #ccc;
+            font-family: sans-serif;
+            padding: 10px;
+        }
+        form h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+        }
+        form label {
+            display: block;
+            font-size: 16px;
+        }
+        form input {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .main {
+            width: 400px;
+            margin: auto;
+            margin-top: 20px;
+            padding: 10px;
+            box-shadow: 0px 0px 10px 2px #ccc;
+            font-family: sans-serif;
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .items {
+            flex-basis: 20%;
+            margin: 1%;
+            width: 100%;
+            padding: 1%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0px 0px 10px 2px #ccc;
+            position: relative;
+        }
+        .items span {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: #007bff;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .items h5 {
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        #call {
+            display: table;
+            margin: 10px auto;
+            padding: 10px 20px;
+            background-color: red;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <form action="">
+        <h2>Enquiry Now</h2>
+        <label for="name">Name</label>
+        <input type="text" name="name" id="name" placeholder="Enter your name">
+        <label for="email">Email</label>
+        <input type="email" name="email" id="email" placeholder="Enter your email">
+        <label for="phone">Phone</label>
+        <input type="text" name="phone" id="phone" placeholder="Enter your phone">
+        <button type="submit">Submit</button>
+    </form>
+
+    <button id="call">Clear All</button>
+    <div class="main"></div>
+
+    <script>
+        let form = document.querySelector('form');
+        let main = document.querySelector('.main');
+        let call = document.getElementById('call');
+
+        form.addEventListener("submit", (event) => {
+            let name = event.target.name.value;
+            let email = event.target.email.value;
+            let phone = event.target.phone.value;
+            let checkStatus = 0;
+
+            if (!name || !email || !phone) {
+                alert("All fields are required!");
+                event.preventDefault();
+                return;
+            }
+
+            let userData = JSON.parse(localStorage.getItem('userDetails')) ?? [];
+            for (let v of userData) {
+                if (v.email == email || v.phone == phone) {
+                    checkStatus = 1;
+                    alert('Email or Phone already exists');
+                    break;
+                }
+            }
+
+            if (checkStatus == 0) {
+                userData.push({ name, email, phone });
+                localStorage.setItem('userDetails', JSON.stringify(userData));
+                event.target.reset();
+            }
+
+            displayData();
+            event.preventDefault();
+        });
+
+        let displayData = () => {
+            let userData = JSON.parse(localStorage.getItem('userDetails')) ?? [];
+            let finalData = '';
+            userData.forEach((element, i) => {
+                finalData += `
+                    <div class="items">
+                        <span onclick="removeData(${i})">&times;</span>
+                        <h5>Name</h5>
+                        <div>${element.name}</div>
+                        <h5>Email</h5>
+                        <div>${element.email}</div>
+                        <h5>Phone</h5>
+                        <div>${element.phone}</div>
+                    </div>`;
+            });
+            main.innerHTML = finalData;
+        };
+
+        let removeData = (index) => {
+            let userData = JSON.parse(localStorage.getItem('userDetails')) ?? [];
+            userData.splice(index, 1);
+            localStorage.setItem('userDetails', JSON.stringify(userData));
+            displayData();
+        };
+
+        call.addEventListener("click", () => {
+            localStorage.removeItem("userDetails");
+            displayData();
+        });
+
+        displayData();
+    </script>
+</body>
+</html>
